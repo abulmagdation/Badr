@@ -65,9 +65,12 @@ const LogSchema = new mongoose.Schema({
     nurseName: String,
     actualTime: String,
     patientCount: Number,
-    createdAt: { type: Date, default: Date.now }
+    createdAt: { type: Date, default: Date.now },
+    status: { type: String, default: 'completed' }
 });
 const Log = mongoose.model('Log', LogSchema);
+
+
 
 // 3. API Routes
 
@@ -176,6 +179,23 @@ app.post('/logs', async (req, res) => {
         res.json(log);
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
+
+// تعديل سجل موجود (سواء لتغيير البيانات أو التعطيل)
+app.put('/logs/:id', async (req, res) => {
+  try {
+    const updatedLog = await Log.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    res.json(updatedLog);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// حذف سجل بالكامل (عشان نرجع العيادة لقائمة الانتظار)
+app.delete('/logs/:id', async (req, res) => {
+  try {
+    await Log.findByIdAndDelete(req.params.id);
+    res.json({ success: true });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
