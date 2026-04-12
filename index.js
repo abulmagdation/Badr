@@ -12,7 +12,7 @@ app.use(cors());
 const SECRET_KEY = process.env.JWT_SECRET || 'AbulmagdSuperSecretKey2026'; // مفتاح التشفير
 
 // 1. الاتصال بقاعدة البيانات
-mongoose.connect('mongodb+srv://Abulmagd:Abulmagd610@cluster0.fac4uzx.mongodb.net/clincs?appName=Cluster0')
+mongoose.connect('mongodb+srv://Abulmagd:Abulmagd610@cluster0.fac4uzx.mongodb.net/?appName=Cluster0')
   .then(() => {
       console.log('✅ MongoDB Connected');
       createDefaultUser(); 
