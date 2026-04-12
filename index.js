@@ -12,9 +12,12 @@ app.use(cors());
 const SECRET_KEY = process.env.JWT_SECRET || 'AbulmagdSuperSecretKey2026'; // مفتاح التشفير
 
 // 1. الاتصال بقاعدة البيانات
-mongoose.connect('mongodb+srv://Abulmagd:Abulmagd610@cluster0.fac4uzx.mongodb.net/?appName=Cluster0')
+// 🔴 تم التعديل: قراءة الرابط من ملف .env لحماية الباسورد واسم الداتابيز
+const MONGO_URI = process.env.MONGO_URI;
+
+mongoose.connect(MONGO_URI)
   .then(() => {
-      console.log('✅ MongoDB Connected');
+      console.log('✅ MongoDB Connected Successfully');
       createDefaultUser(); 
   })
   .catch(err => console.log('❌ DB Connection Error:', err));
@@ -30,12 +33,16 @@ const UserSchema = new mongoose.Schema({
 const User = mongoose.model('User', UserSchema);
 
 const createDefaultUser = async () => {
-    const count = await User.countDocuments();
-    if (count === 0) {
-        const hashedPassword = await bcrypt.hash('123', 10);
-        const admin = new User({ name: 'أبو المجد', username: 'admin', password: hashedPassword, role: 'admin' });
-        await admin.save();
-        console.log('تم إنشاء حساب افتراضي مشفر: اليوزر (admin) - الباسورد (123)');
+    try {
+        const count = await User.countDocuments();
+        if (count === 0) {
+            const hashedPassword = await bcrypt.hash('123', 10);
+            const admin = new User({ name: 'أبو المجد', username: 'admin', password: hashedPassword, role: 'admin' });
+            await admin.save();
+            console.log('تم إنشاء حساب افتراضي مشفر: اليوزر (admin) - الباسورد (123)');
+        }
+    } catch (err) {
+        console.log('❌ خطأ في إنشاء المستخدم الافتراضي:', err.message);
     }
 };
 
@@ -68,7 +75,13 @@ const Log = mongoose.model('Log', LogSchema);
 // --- 🔴 Middleware لحماية الروابط والتأكد من وجود اليوزر ---
 const authMiddleware = async (req, res, next) => {
     try {
-        const token = req.header('Authorization').replace('Bearer ', '');
+        // 🔴 تم التعديل: التأكد من وجود الهيدر قبل ما نعمل replace عشان السيرفر ميقعش
+        const authHeader = req.header('Authorization');
+        if (!authHeader) {
+            return res.status(401).json({ error: 'يرجى تسجيل الدخول أولاً، لا يوجد رمز مصادقة.' });
+        }
+
+        const token = authHeader.replace('Bearer ', '');
         const decoded = jwt.verify(token, SECRET_KEY);
         
         // لو اليوزر اتحذف من الداتابيز، السطر ده هيوقفه ويطرده
