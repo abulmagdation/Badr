@@ -12,8 +12,8 @@ app.use(cors());
 const SECRET_KEY = process.env.JWT_SECRET || 'AbulmagdSuperSecretKey2026'; // مفتاح التشفير
 
 // 1. الاتصال بقاعدة البيانات
-// 🔴 تم التعديل: قراءة الرابط من ملف .env لحماية الباسورد واسم الداتابيز
-const MONGO_URI = process.env.MONGO_URI;
+// 🔴 تم التعديل: قراءة الرابط من ملف .env، ولو مش موجود هيستخدم اللينك كبديل
+const MONGO_URI = process.env.MONGO_URI || 'mongodb+srv://Abulmagd:Abulmagd610@cluster0.fac4uzx.mongodb.net/ClinicDB?appName=Cluster0';
 
 mongoose.connect(MONGO_URI)
   .then(() => {
