@@ -17,4 +17,4 @@ COPY . .
 EXPOSE 8080
 
 # أمر تشغيل المشروع
-CMD [ "npm", "start" ]
+CMD [ "node", "index.js" ]
